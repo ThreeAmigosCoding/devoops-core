@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-services="user-service accommodation-service notification-service rating-service reservation-service search-service "
+services="user-service accommodation-service notification-service rating-service reservation-service search-service gateway-service"
 
 cd ../../
 for service in $services; do
