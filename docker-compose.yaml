@@ -112,6 +112,19 @@ services:
     depends_on:
       - logstash
 
+  frontend:
+    build:
+      context: ../devoops-frontend
+      dockerfile: Dockerfile
+    container_name: devoops-frontend
+    ports:
+      - "4200:80"
+    networks:
+      - devoops-network
+    restart: unless-stopped
+    depends_on:
+      - gateway
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
     container_name: devoops-elasticsearch
