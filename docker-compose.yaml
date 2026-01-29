@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   gateway:
     build:
@@ -14,13 +12,20 @@ services:
       - devoops-network
     restart: unless-stopped
     depends_on:
-      - logstash
-      - user-service
-      - accommodation-service
-      - notification-service
-      - rating-service
-      - reservation-service
-      - search-service
+      logstash:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+      accommodation-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+      rating-service:
+        condition: service_started
+      reservation-service:
+        condition: service_started
+      search-service:
+        condition: service_started
 
   user-service:
     build:
@@ -164,25 +169,29 @@ services:
       - postgres-data:/var/lib/postgresql/data
       - ./postgres/init-databases.sql:/docker-entrypoint-initdb.d/init-database.sql:z
 
-#  frontend:
-#    build:
-#      context: ../devoops-frontend
-#      dockerfile: Dockerfile
-#    container_name: devoops-frontend
-#    ports:
-#      - "4200:80"
-#    networks:
-#      - devoops-network
-#    restart: unless-stopped
-#    depends_on:
-#      - gateway
+  frontend:
+    build:
+      context: ../devoops-frontend
+      dockerfile: Dockerfile
+    container_name: devoops-frontend
+    ports:
+      - "4200:80"
+    networks:
+      - devoops-network
+    restart: unless-stopped
+    depends_on:
+      - gateway
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
     container_name: devoops-elasticsearch
+    env_file:
+      - "./environment/.local.env"
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
@@ -191,7 +200,7 @@ services:
       - devoops-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f -u $$ELASTIC_USERNAME:$$ELASTIC_PASSWORD http://localhost:9200/_cluster/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -202,11 +211,12 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.0
     container_name: devoops-logstash
-    user: root
     ports:
       - "5000:5000/tcp"
       - "5000:5000/udp"
       - "9600:9600"
+    env_file:
+      - "./environment/.local.env"
     environment:
       - "LS_JAVA_OPTS=-Xms256m -Xmx256m"
     networks:
@@ -215,6 +225,12 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9600/_node/stats || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
     volumes:
       - ./logstash/pipeline:/usr/share/logstash/pipeline:z
       - ./logstash/config:/usr/share/logstash/config:z
@@ -222,8 +238,8 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.11.0
     container_name: devoops-kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    env_file:
+      - "./environment/.local.env"
     ports:
       - "5601:5601"
     networks:
@@ -233,7 +249,7 @@ services:
       elasticsearch:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      test: ["CMD-SHELL", "curl -f -u elastic:$$ELASTIC_PASSWORD http://localhost:5601/api/status || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
