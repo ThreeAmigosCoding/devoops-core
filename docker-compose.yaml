@@ -36,6 +36,8 @@ services:
     restart: unless-stopped
     depends_on:
       - logstash
+      - rabbitmq
+      - postgres
 
   accommodation-service:
     build:
@@ -51,6 +53,8 @@ services:
     restart: unless-stopped
     depends_on:
       - logstash
+      - rabbitmq
+      - postgres
 
   notification-service:
     build:
@@ -66,6 +70,8 @@ services:
     restart: unless-stopped
     depends_on:
       - logstash
+      - rabbitmq
+      - postgres
 
   rating-service:
     build:
@@ -81,6 +87,8 @@ services:
     restart: unless-stopped
     depends_on:
       - logstash
+      - rabbitmq
+      - postgres
 
   reservation-service:
     build:
@@ -96,6 +104,8 @@ services:
     restart: unless-stopped
     depends_on:
       - logstash
+      - rabbitmq
+      - postgres
 
   search-service:
     build:
@@ -111,6 +121,47 @@ services:
     restart: unless-stopped
     depends_on:
       - logstash
+      - rabbitmq
+      - postgres
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: devoops-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - "./rabbitmq/.env"
+    networks:
+      - devoops-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: devoops-postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - "./postgres/.env"
+    networks:
+      - devoops-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devoops"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
   frontend:
     build:
@@ -150,6 +201,7 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.0
     container_name: devoops-logstash
+    user: root
     ports:
       - "5000:5000/tcp"
       - "5000:5000/udp"
@@ -163,8 +215,8 @@ services:
       elasticsearch:
         condition: service_healthy
     volumes:
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-      - ./logstash/config:/usr/share/logstash/config:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:z
+      - ./logstash/config:/usr/share/logstash/config:z
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.11.0
@@ -201,4 +253,8 @@ networks:
 
 volumes:
   elasticsearch-data:
+    driver: local
+  rabbitmq-data:
+    driver: local
+  postgres-data:
     driver: local
