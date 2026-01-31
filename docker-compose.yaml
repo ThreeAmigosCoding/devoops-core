@@ -131,7 +131,7 @@ services:
       - "5672:5672"
       - "15672:15672"
     env_file:
-      - "./rabbitmq/.env"
+      - "rabbitmq/.local.env"
     networks:
       - devoops-network
     restart: unless-stopped
@@ -150,7 +150,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - "./postgres/.env"
+      - "postgres/.local.env"
     networks:
       - devoops-network
     restart: unless-stopped
