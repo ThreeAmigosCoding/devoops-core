@@ -1,0 +1,63 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'devoops-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'gateway-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['devoops-gateway-service:8080']
+        labels:
+          service: 'gateway'
+
+  - job_name: 'user-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['devoops-user-service:8080']
+        labels:
+          service: 'user'
+
+  - job_name: 'accommodation-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['devoops-accommodation-service:8080']
+        labels:
+          service: 'accommodation'
+
+  - job_name: 'notification-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['devoops-notification-service:8080']
+        labels:
+          service: 'notification'
+
+  - job_name: 'rating-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['devoops-rating-service:8080']
+        labels:
+          service: 'rating'
+
+  - job_name: 'reservation-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['devoops-reservation-service:8080']
+        labels:
+          service: 'reservation'
+
+  - job_name: 'search-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['devoops-search-service:8080']
+        labels:
+          service: 'search'
+
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['devoops-cadvisor:8080']
