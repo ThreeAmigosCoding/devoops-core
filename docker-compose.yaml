@@ -62,7 +62,8 @@ services:
     depends_on:
       - logstash
       - rabbitmq
-      - postgres
+      - mongodb
+      - mailhog
 
   rating-service:
     build:
@@ -173,6 +174,16 @@ services:
       start_period: 40s
     volumes:
       - mongodb-data:/data/db
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: devoops-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - devoops-network
+    restart: unless-stopped
 
   frontend:
     build:
