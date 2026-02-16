@@ -1,5 +1,5 @@
 services:
-  gateway:
+  gateway-service:
     build:
       context: ../devoops-gateway-service
       dockerfile: Dockerfile
@@ -196,7 +196,7 @@ services:
       - devoops-network
     restart: unless-stopped
     depends_on:
-      - gateway
+      - gateway-service
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
