@@ -20,7 +20,6 @@ services=(
   "devoops-notification-service"
   "devoops-rating-service"
   "devoops-reservation-service"
-  "devoops-search-service"
   "devoops-frontend"
   "devoops-core"
 )

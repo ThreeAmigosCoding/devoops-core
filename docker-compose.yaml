@@ -90,25 +90,9 @@ services:
     container_name: devoops-reservation-service
     ports:
       - "8085:8080"
+      - "9095:9090"
     env_file:
       - "../devoops-reservation-service/environment/.local.env"
-    networks:
-      - devoops-network
-    restart: unless-stopped
-    depends_on:
-      - logstash
-      - rabbitmq
-      - postgres
-
-  search-service:
-    build:
-      context: ../devoops-search-service
-      dockerfile: Dockerfile
-    container_name: devoops-search-service
-    ports:
-      - "8086:8080"
-    env_file:
-      - "../devoops-search-service/environment/.local.env"
     networks:
       - devoops-network
     restart: unless-stopped
