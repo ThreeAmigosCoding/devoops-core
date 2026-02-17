@@ -13,5 +13,5 @@ done
 
 echo "Building images..."
 cd devoops-core
-docker compose up -d --build
+sudo docker compose up -d --build
 echo "Done building images"

@@ -20,6 +20,7 @@ services:
     container_name: devoops-user-service
     ports:
       - "8081:8080"
+      - "9081:9090"
     env_file:
       - "../devoops-user-service/environment/.local.env"
     networks:
@@ -37,6 +38,7 @@ services:
     container_name: devoops-accommodation-service
     ports:
       - "8082:8080"
+      - "9091:9090"
     env_file:
       - "../devoops-accommodation-service/environment/.local.env"
     networks:
