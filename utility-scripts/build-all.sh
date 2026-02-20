@@ -13,5 +13,11 @@ done
 
 echo "Building images..."
 cd devoops-core
-sudo docker compose up -d --build
+
+if [[ "$(uname)" != "Darwin" ]]; then
+    shopt -s expand_aliases
+    alias docker='sudo docker'
+fi
+
+docker compose up -d --build
 echo "Done building images"
