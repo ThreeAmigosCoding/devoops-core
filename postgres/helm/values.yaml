@@ -1,3 +1,4 @@
+fullnameOverride: devoops-postgres
 
 global:
   security:

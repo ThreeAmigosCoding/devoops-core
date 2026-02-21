@@ -1,18 +1,17 @@
-fullnameOverride: devoops-rabbitmq
+fullnameOverride: devoops-mongodb
 
 global:
   security:
     allowInsecureImages: true
 
 auth:
-  username: devoops
-  password: devoops123
-  erlangCookie: secretcookie
+  rootUser: devoops
+  rootPassword: devoops
 
 image:
   registry: docker.io
-  repository: bitnamilegacy/rabbitmq
-  tag: 4.1.3
+  repository: bitnamilegacy/mongodb
+  tag: 7.0.9
 
 resources:
   requests:
@@ -26,10 +25,7 @@ persistence:
   enabled: true
   size: 1Gi
 
-plugins: "rabbitmq_management rabbitmq_peer_discovery_k8s"
-
 service:
   type: ClusterIP
   ports:
-    amqp: 5672
-    manager: 15672
+    mongodb: 27017
