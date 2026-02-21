@@ -1,0 +1,21 @@
+fullnameOverride: devoops-mailhog
+
+replicaCount: 1
+
+image:
+  repository: mailhog/mailhog
+  tag: v1.0.1
+
+resources:
+  requests:
+    memory: 64Mi
+    cpu: 50m
+  limits:
+    memory: 128Mi
+    cpu: 200m
+
+service:
+  type: ClusterIP
+  port:
+    http: 8025
+    smtp: 1025
