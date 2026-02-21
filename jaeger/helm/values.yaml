@@ -1,0 +1,38 @@
+fullnameOverride: devoops-jaeger
+
+provisionDataStore:
+  cassandra: false
+  elasticsearch: false
+  kafka: false
+
+allInOne:
+  enabled: true
+  replicaCount: 1
+
+  image:
+    registry: docker.io
+    repository: jaegertracing/all-in-one
+    tag: "1.65.0"
+
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 500m
+
+  service:
+    type: ClusterIP
+
+storage:
+  type: memory
+
+agent:
+  enabled: false
+
+collector:
+  enabled: false
+
+query:
+  enabled: false
