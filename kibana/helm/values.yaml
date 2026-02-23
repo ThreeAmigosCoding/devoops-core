@@ -1,0 +1,14 @@
+fullnameOverride: devoops-kibana
+
+elasticsearchHosts: "http://devoops-elasticsearch:9200"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+service:
+  type: ClusterIP
