@@ -1,0 +1,43 @@
+fullnameOverride: ""
+replicaCount: 1
+
+image:
+  registry: docker.io
+  repository: ""
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  httpPort: 8080
+  grpc:
+    enabled: false
+    port: 9090
+
+ingress:
+  enabled: false
+  className: nginx
+  host: ""
+  path: /
+  pathType: Prefix
+  annotations: {}
+
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 250m
+  limits:
+    memory: 512Mi
+    cpu: 1000m
+
+health:
+  path: /actuator/health
+  periodSeconds: 10
+  failureThreshold: 3
+  startup:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 60
+
+configData: {}
+secretData: {}
