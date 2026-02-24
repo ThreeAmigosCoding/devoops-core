@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "devoops-service.fullname" . }}
+  labels:
+    {{ include "devoops-service.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{ include "devoops-service.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "devoops-service.selectorLabels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "{{ .Values.service.httpPort }}"
+        prometheus.io/path: "/actuator/prometheus"
+    spec:
+      containers:
+        - name: {{ include "devoops-service.fullname" . }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.httpPort }}
+              protocol: TCP
+            {{- if .Values.service.grpc.enabled }}
+            - name: grpc
+              containerPort: {{ .Values.service.grpc.port }}
+              protocol: TCP
+            {{- end }}
+          envFrom:
+            {{- if .Values.configData }}
+            - configMapRef:
+                name: {{ include "devoops-service.fullname" . }}
+            {{- end }}
+            {{- if .Values.secretData }}
+            - secretRef:
+                name: {{ include "devoops-service.fullname" . }}
+            {{- end }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.health.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.health.startup.initialDelaySeconds }}
+            periodSeconds: {{ .Values.health.startup.periodSeconds }}
+            failureThreshold: {{ .Values.health.startup.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.health.path }}
+              port: http
+            periodSeconds: {{ .Values.health.periodSeconds }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.health.path }}
+              port: http
+            periodSeconds: {{ .Values.health.periodSeconds }}
+            failureThreshold: {{ .Values.health.failureThreshold }}
+          resources:
+            requests:
+              memory: {{ .Values.resources.requests.memory }}
+              cpu: {{ .Values.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.resources.limits.memory }}
+              cpu: {{ .Values.resources.limits.cpu }}
